@@ -50,10 +50,10 @@ public class PlaybackFragment extends DialogFragment {
     private TextView mFileNameTextView = null;
     private TextView mFileLengthTextView = null;
 
-    //stores whether or not the mediaplayer is currently playing audio
+    // stores whether or not the mediaplayer is currently playing audio
     private boolean isPlaying = false;
 
-    //stores minutes and seconds of the length of the file.
+    // stores minutes and seconds of the length of the file.
     long minutes = 0;
     long seconds = 0;
 
@@ -98,7 +98,6 @@ public class PlaybackFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
         Dialog dialog = super.onCreateDialog(savedInstanceState);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -212,17 +211,15 @@ public class PlaybackFragment extends DialogFragment {
     }
 
     // Play start/stop
-    private void onPlay(boolean isPlaying){
+    private void onPlay(boolean isPlaying) {
         if (!isPlaying) {
-            //currently MediaPlayer is not playing audio
             if(mMediaPlayer == null) {
-                startPlaying(); //start from beginning
+                startPlaying(); // start from beginning
             } else {
-                resumePlaying(); //resume the currently paused MediaPlayer
+                resumePlaying(); // resume the currently paused MediaPlayer
             }
 
         } else {
-            //pause the MediaPlayer
             pausePlaying();
         }
     }
@@ -281,7 +278,7 @@ public class PlaybackFragment extends DialogFragment {
             e.printStackTrace();
         }
 
-        //keep screen on while playing audio
+        // keep screen on while playing audio
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -312,11 +309,11 @@ public class PlaybackFragment extends DialogFragment {
         mCurrentProgressTextView.setText(mFileLengthTextView.getText());
         mSeekBar.setProgress(mSeekBar.getMax());
 
-        //allow the screen to turn off again once audio is finished playing
+        // allow the screen to turn off again once audio is finished playing
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
-    //updating mSeekBar
+    // updating mSeekBar
     private Runnable mRunnable = new Runnable() {
         @Override
         public void run() {
