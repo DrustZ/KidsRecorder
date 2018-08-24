@@ -58,12 +58,12 @@ public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
     private RecordingManager recordingManager = null;
     private DataManager dataManager;
-    private BroadcastReceiver receiver; //receive the recording status change notifications
+    private BroadcastReceiver receiver; // receive the recording status change notifications
     private boolean serviceBound = false;
     private boolean registeredReceiver = false;
-    private boolean isUIRecording = false; //whether the reocording button is pressed
+    private boolean isUIRecording = false; // whether the reocording button is pressed
 
-    //recording settings
+    // recording settings
     private int record_length; // the recording time in seconds
     private boolean record_background = false;
     private boolean record_keepawake = false;
@@ -77,11 +77,11 @@ public class MainActivity extends AppCompatActivity {
     Set<String> notifyEvents = null;
     Set<String> notifyStyles = null;
 
-    SharedPreferences sharedPreferences; //The preferences stores the setting parameters from the setting UI
+    SharedPreferences sharedPreferences; // The preferences stores the setting parameters from the setting UI
     Context context;
     IntentFilter filter;
 
-    //UI
+    // UI
     private Chronometer mChronometer = null;
     private FloatingActionButton mRecordButton = null;
 
@@ -93,11 +93,10 @@ public class MainActivity extends AppCompatActivity {
 
         setupUI();
         context = this;
-        //initialize necessary classes
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        //The procedure to instantiate the datamanager
-        //first call getInstance, then setfoldername, then call Initialize
+        // The procedure to instantiate the datamanager
+        // first call getInstance, then setfoldername, then call Initialize
         dataManager = DataManager.getInstance();
         try {
             dataManager.setFolderName("KidsRecorder");
@@ -118,11 +117,10 @@ public class MainActivity extends AppCompatActivity {
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                //do something based on the recorder's status
                 RecordingStatus status = (RecordingStatus) intent.getSerializableExtra("action");
                 switch (status){
                     case RECORDING_STARTED:
-                        //the recording start, not because the user pressed the button
+                        // the recording started, not because the user pressed the button
                         startRecrodingUI();
                         if (notifyEvents != null && notifyEvents.contains(getResources().getString(R.string.start))) {
                             //indicate the status in UI
@@ -130,14 +128,14 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case RECORDING_STOPPED:
-                        //the recording stopped, not because the user pressed the button
+                        // the recording stopped, not because the user pressed the button
                         stopRecordingUI();
                         if (notifyEvents != null){
                             if (notifyEvents.contains(getResources().getString(R.string.stop))) {
                                 makeIndicator(getResources().getString(R.string.stop));
                             } else if (notifyStyles != null && notifyStyles.contains(R.string.statusBar)) {
-                                //if stop is not selected as event, but start is and there's status bar notification
-                                //we need to cancel it
+                                // if stop is not selected as event, but start is and there's status bar notification
+                                // we need to cancel it
                                 recordingManager.cancelNotification();
                             }
                         }
@@ -147,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
                     case RECORDING_RESUMED:
                         break;
                     case RECORDING_TIME_UP:
-                        if (record_autorestart){
+                        if (record_autorestart) {
                             startRecording();
                             startRecrodingUI();
                         }
@@ -168,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.action_file:
                 intent = new Intent(this, FileExplorerActivity.class);
                 startActivity(intent);
@@ -184,8 +182,8 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    //retrieve the settings from the settingUI and set them to record manager and data manager
-    private void updateRecordSettings(){
+    // retrieve the settings from the settingUI and set them to record manager and data manager
+    private void updateRecordSettings() {
         boolean record_timing = sharedPreferences.getBoolean("record_timing", false);
         String tempstring = sharedPreferences.getString("record_length", "0");
         record_length = Integer.parseInt(tempstring);
@@ -207,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
 
         tempstring = sharedPreferences.getString("preceding_time", "0");
         preceding_time = Integer.parseInt(tempstring);
-        if (preceding_time > 0){
+        if (preceding_time > 0) {
             preceding_mode = true;
         }
 
@@ -230,19 +228,19 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (recordingManager == null) return;
 
-                if (isUIRecording){
+                if (isUIRecording) {
                     stopRecording();
                     isUIRecording = false;
-                    if (preceding_mode && preceding_time > 0){
+                    if (preceding_mode && preceding_time > 0) {
                         recordingManager.setShould_keep(false);
                     }
                 } else {
-                    if (preceding_mode && preceding_time > 0){
-                        //if the preceding mode is on, then we should first stop the background recording
+                    if (preceding_mode && preceding_time > 0) {
+                        // if the preceding mode is on, then we should first stop the background recording
                         stopSilentRecording();
                         recordingManager.setShould_keep(true);
                     }
-                    //then start the formal recording
+                    // then start the formal recording
                     startRecording();
                     isUIRecording = true;
                 }
@@ -256,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
             recordingManager.StopRecording();
     }
 
-    //stop recording silently without getting broadcast (as the UI would be changed if there's broadcast)
+    // stop recording silently without getting broadcast (as the UI would be changed if there's broadcast)
     void stopSilentRecording(){
         if (recordingManager == null) return;
         if (recordingManager.isRecording())
@@ -271,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
         mRecordButton.setImageResource(R.drawable.ic_media_play);
     }
 
-    void startRecording(){
+    void startRecording() {
         if (recordingManager == null) return;
         updateRecordSettings();
         int time_limit = record_length;
@@ -297,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 v.vibrate(VibrationEffect.createOneShot(700,VibrationEffect.DEFAULT_AMPLITUDE));
             }else{
-                //deprecated in API 26
+                // deprecated in API 26
                 v.vibrate(700);
             }
         }
@@ -359,9 +357,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         //if the background recording is off, then stop current recording
-        if (!record_background && recordingManager != null && recordingManager.isRecording()){
+        if (!record_background && recordingManager != null && recordingManager.isRecording()) {
             isUIRecording = false;
-            Log.d("[Ray]", "onStop: !!!!!");
             recordingManager.cancelNotification();
             recordingManager.StopRecordingWithoutStartingBackground();
             stopRecordingUI();
@@ -371,8 +368,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (serviceConnection != null){
+        if (serviceConnection != null) {
             unbindService(serviceConnection);
         }
     }
@@ -435,9 +431,9 @@ public class MainActivity extends AppCompatActivity {
                         StartService();
                     } else {
                         Log.d(TAG, "Some permissions are not granted ask again ");
-                        //permission is denied (this is the first time, when "never ask again" is not checked) so ask again explaining the usage of permission
-//                      //shouldShowRequestPermissionRationale will return true
-                        //show the dialog or snackbar saying its necessary and try again otherwise proceed with setup.
+                        // permission is denied (this is the first time, when "never ask again" is not checked) so ask again explaining the usage of permission
+                        // shouldShowRequestPermissionRationale will return true
+                        // show the dialog or snackbar saying its necessary and try again otherwise proceed with setup.
                         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
                                 ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {
                             showDialogOK("Phone state and storage permissions required for this app",
@@ -455,12 +451,11 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     });
                         }
-                        //permission is denied (and never ask again is  checked)
-                        //shouldShowRequestPermissionRationale will return false
+                        // permission is denied (and never ask again is checked)
+                        // shouldShowRequestPermissionRationale will return false
                         else {
                             Toast.makeText(this, "Go to settings and enable permissions", Toast.LENGTH_LONG)
                                     .show();
-                            //proceed with logic by disabling the related features or quit the app.
                         }
                     }
                 }
@@ -478,7 +473,7 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-    //Binding this Client to the AudioPlayer Service
+    // Binding this Client to the AudioPlayer Service
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
