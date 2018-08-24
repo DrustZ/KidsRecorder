@@ -28,13 +28,12 @@ import omrecorder.Recorder;
  * Created by mingrui on 7/16/2018.
  */
 
-public class BasicRecorder implements PullTransport.OnAudioChunkPulledListener{
-    //configuration variables
+public class BasicRecorder implements PullTransport.OnAudioChunkPulledListener {
     private String filePath = null;
     private Recorder recorder = null;
     private boolean isRecording;
 
-    private String startDate; //start time
+    private String startDateTime;
     private long mStartMillis = 0;
     private long duration = 0;
 
@@ -48,7 +47,7 @@ public class BasicRecorder implements PullTransport.OnAudioChunkPulledListener{
 
     public String getFilePath() { return filePath; }
 
-    public String getStartDate() { return startDate; }
+    public String getStartDate() { return startDateTime; }
 
     public int getDuration() { return (int)(duration/1000); }
 
@@ -57,16 +56,16 @@ public class BasicRecorder implements PullTransport.OnAudioChunkPulledListener{
             return (int)((System.currentTimeMillis() - mStartMillis + duration)/1000);
         }
         return 0;
-    } //return the elapsed time since the recording started;
+    }
 
-    public void Start(){
+    public void Start() {
         if (filePath == null) return;
         isRecording = true;
-        startDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        startDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         mStartMillis = System.currentTimeMillis();
         duration = 0;
 
-        if(recorder == null) {
+        if (recorder == null) {
             recorder = OmRecorder.wav(
                     new PullTransport.Default(mic(), BasicRecorder.this),
                     new File(filePath));
@@ -74,9 +73,9 @@ public class BasicRecorder implements PullTransport.OnAudioChunkPulledListener{
         recorder.startRecording();
     }
 
-    public void Stop(){
+    public void Stop() {
         isRecording = false;
-        if (recorder != null){
+        if (recorder != null) {
             try {
                 recorder.stopRecording();
             } catch (IOException e) {
@@ -88,29 +87,28 @@ public class BasicRecorder implements PullTransport.OnAudioChunkPulledListener{
         duration += (System.currentTimeMillis() - mStartMillis);
     }
 
-    public void Pause(){
+    public void Pause() {
         isRecording = false;
 
         duration += (System.currentTimeMillis() - mStartMillis);
 
-        if (recorder != null){
+        if (recorder != null) {
             recorder.pauseRecording();
         }
     }
 
-    public void Resume(){
+    public void Resume() {
         isRecording = true;
 
         mStartMillis = System.currentTimeMillis();
 
-        if (recorder != null){
+        if (recorder != null) {
             recorder.resumeRecording();
         }
     }
 
     @Override
     public void onAudioChunkPulled(AudioChunk audioChunk) {
-        //passs
     }
 
     private PullableSource mic() {
