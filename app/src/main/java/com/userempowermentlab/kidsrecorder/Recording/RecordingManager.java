@@ -45,10 +45,10 @@ public class RecordingManager extends Service {
     private boolean should_keep = true; // if should_keep && auto_upload, the file would be upload, otherwise it won't
 
     private DataManager manager;
-    private Handler mHandler = new Handler(); //for timer
-    Runnable mTimerStopRecorder; // for timer
+    private Handler mTimerHandler = new Handler();
+    Runnable mTimerStopRecorder;
     private BasicRecorder recorder = null;
-    PowerManager.WakeLock wakeLock;// for always recording mode, the phone cpu won't sleep even in black screen. Drain power quickly
+    PowerManager.WakeLock wakeLock; // for always recording mode, the phone cpu won't sleep even in black screen. Drains power quickly
     private final IBinder mBinder = new LocalBinder();
 
     /**
@@ -107,11 +107,11 @@ public class RecordingManager extends Service {
     /**
      * Returns whether recording
      */
-    public boolean isRecording(){
-
+    public boolean isRecording() {
         if (recorder != null) {
             return recorder.isRecording();
-        } else return false;
+        }
+        else return false;
     }
 
     @Override
@@ -119,7 +119,7 @@ public class RecordingManager extends Service {
         super.onCreate();
         recorder = new BasicRecorder();
 
-        //the task for timed recording
+        // the task for timed recording
         mTimerStopRecorder = new Runnable() {
             @Override
             public void run() {
@@ -137,7 +137,7 @@ public class RecordingManager extends Service {
         };
     }
 
-    //returns the instance of the service
+    // returns the instance of the service
     public class LocalBinder extends Binder {
         public RecordingManager getServiceInstance(){
             return RecordingManager.this;
@@ -152,7 +152,7 @@ public class RecordingManager extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        //get singleton DataManager
+        // get singleton DataManager
         manager = DataManager.getInstance();
         return START_STICKY;
     }
@@ -206,7 +206,6 @@ public class RecordingManager extends Service {
      * @param filename the filename(full path) to be saved
      */
     public void StartRecording(String filename) {
-        Log.d("[RAY]", "Recording start + " + filename);
         if (recorder.isRecording()){
             StopRecordingSilently();
         }
@@ -214,7 +213,7 @@ public class RecordingManager extends Service {
         recorder.setFilePath(filename);
         recorder.Start();
         if (recordingTime > 0) {
-            mHandler.postDelayed(mTimerStopRecorder, recordingTime);
+            mTimerHandler.postDelayed(mTimerStopRecorder, recordingTime);
         }
         sendBroadCast(RecordingStatus.RECORDING_STARTED);
     }
@@ -226,7 +225,7 @@ public class RecordingManager extends Service {
      * @param timeLimit the recording time (in second)
      */
     public void StartRecording(String filename, int timeLimit){
-        recordingTime = timeLimit*1000;
+        recordingTime = timeLimit * 1000;
         StartRecording(filename);
     }
 
@@ -238,7 +237,7 @@ public class RecordingManager extends Service {
      * @param timeLimit the preceding time (in second)
      */
     public void StartRecordingSilently(String filename, int timeLimit){
-        precedingTime = timeLimit*1000;
+        precedingTime = timeLimit * 1000;
         StartRecordingSilently(filename);
     }
 
@@ -253,11 +252,10 @@ public class RecordingManager extends Service {
             StopRecordingSilently();
         }
         if (precedingTime <= 0) return;
-        Log.d("[RAY]", "Recording silent start");
         should_keep = false;
         recorder.setFilePath(filename);
         recorder.Start();
-        mHandler.postDelayed(mTimerStopRecorder, precedingTime);
+        mTimerHandler.postDelayed(mTimerStopRecorder, precedingTime);
     }
 
     /**
@@ -266,8 +264,7 @@ public class RecordingManager extends Service {
      * Or by other classes to stop background preceding mode recording
      */
     public void StopRecordingSilently(){
-        Log.d("[RAY]", "Recording Stopped, should_KEEP "+ should_keep);
-        mHandler.removeCallbacks(mTimerStopRecorder);
+        mTimerHandler.removeCallbacks(mTimerStopRecorder);
         if (recorder.isRecording()){
             recorder.Stop();
         }
@@ -286,10 +283,9 @@ public class RecordingManager extends Service {
         StopRecordingSilently();
         sendBroadCast(RecordingStatus.RECORDING_STOPPED);
 
-        //for preceding mode on, then auto start the background recording
+        // for preceding mode on, then auto start the background recording
         if (precedingTime > 0) {
            SystemClock.sleep(100);
-           Log.d("[RAY]", "StopRecording: autostart");
            StartRecordingSilently(manager.getRecordingNameOfTimeWithPrefix("preceding"));
         }
     }
@@ -308,9 +304,9 @@ public class RecordingManager extends Service {
      * Pause recording. If this function is called, the "pause notification" would broadcast to other classes
      */
     public void PauseRecording() {
-        if (recorder.isRecording()){
+        if (recorder.isRecording()) {
             recorder.Pause();
-            mHandler.removeCallbacks(mTimerStopRecorder);
+            mTimerHandler.removeCallbacks(mTimerStopRecorder);
         }
         sendBroadCast(RecordingStatus.RECORDING_PAUSED);
     }
@@ -319,11 +315,11 @@ public class RecordingManager extends Service {
      * Resume recording. If this function is called, the "resume notification" would broadcast to other classes
      */
     public void ResumeRecording() {
-        if (recorder.isRecording()){
+        if (recorder.isRecording()) {
             recorder.Resume();
             //we need to restart the timer as it is paused
-            if (recordingTime > 0){
-                mHandler.postDelayed(mTimerStopRecorder, recordingTime-1000*recorder.getDuration());
+            if (recordingTime > 0) {
+                mTimerHandler.postDelayed(mTimerStopRecorder, recordingTime-1000*recorder.getDuration());
             }
         }
         sendBroadCast(RecordingStatus.RECORDING_RESUMED);
