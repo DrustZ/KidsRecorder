@@ -49,7 +49,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
      */
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        //input values (should be positive number)
+        // input values should be positive numbers
         if (preference == record_length || preference == storage_buffersize || preference == storage_limit || preference == preceding_time){
             try{
                 int n = Integer.parseInt(newValue.toString());
@@ -58,7 +58,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 return false;
             }
         }
-        //input values should be a legal file prefix
+        // input values should be a legal file prefix
         else if (preference == storage_fileprefix){
             String name = newValue.toString();
             name = name.replaceAll("\\W+", "");
