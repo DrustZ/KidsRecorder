@@ -25,7 +25,7 @@ public class FileExplorerActivity extends AppCompatActivity implements FileVIewM
     private FileViewAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    //UI
+    // UI
     MenuItem itemDelete;
     MenuItem itemShare;
     MenuItem itemUpload;
@@ -55,7 +55,7 @@ public class FileExplorerActivity extends AppCompatActivity implements FileVIewM
 
     @Override
     public void onBackPressed() {
-        if (mAdapter.isMultiSelectionEnabled()){
+        if (mAdapter.isMultiSelectionEnabled()) {
             mAdapter.deSelectAll();
         } else {
             super.onBackPressed();
@@ -74,7 +74,7 @@ public class FileExplorerActivity extends AppCompatActivity implements FileVIewM
 
     @Override
     public void onMultiselectEnabled(boolean enabled) {
-        if (enabled){
+        if (enabled) {
             itemUpload.setVisible(true);
             itemShare.setVisible(true);
             itemDelete.setVisible(true);
@@ -87,7 +87,7 @@ public class FileExplorerActivity extends AppCompatActivity implements FileVIewM
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.action_upload:
                 mAdapter.UploadSelectedFiles();
                 return true;
